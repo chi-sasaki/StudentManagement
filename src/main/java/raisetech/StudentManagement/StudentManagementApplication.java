@@ -23,4 +23,9 @@ public class StudentManagementApplication {
     public List<Student> getStudentList(){
         return repository.search();
     }
+
+    @GetMapping("/courseList")
+    public List<Course> getCourseList(){
+        return repository.course();
+    }
 }
