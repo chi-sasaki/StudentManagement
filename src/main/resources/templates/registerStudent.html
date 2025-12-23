@@ -11,6 +11,10 @@
         <input type="text" id="name" th:field="*{student.fullName}" required />
     </div>
     <div>
+        <label>メールアドレス：</label>
+        <input type="email" th:field="*{student.emailAddress}" required />
+    </div>
+    <div>
         <button type="submit">登録</button>
     </div>
 </form>
