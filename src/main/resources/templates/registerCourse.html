@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>コース登録</title>
+</head>
+<body>
+<h1>コース登録</h1>
+<form th:action="@{/registerCourse}" th:object="${course}" method="post">
+
+    <!-- student_idはランダム生成したものと共有するのでhiddenで実装 -->
+    <input type="hidden" th:field="*{studentId}" />
+    <div>
+        <label for="name">コース名：</label>
+        <input type="text" id="name" th:field="*{courseName}" required />
+    </div>
+    <div>
+        <label>受講開始日：</label>
+        <input type="date" th:field="*{courseStartDate}" required />
+    </div>
+    <div>
+        <button type="submit">登録</button>
+    </div>
+</form>
+</body>
+</html>
