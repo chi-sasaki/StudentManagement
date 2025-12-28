@@ -6,14 +6,15 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import raisetech.StudentManagement.controller.converter.StudentConverter;
 import raisetech.StudentManagement.date.Course;
 import raisetech.StudentManagement.date.Student;
 import raisetech.StudentManagement.domain.StudentDetail;
 import raisetech.StudentManagement.service.StudentService;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -52,28 +53,22 @@ public class StudentController {
         return "courseList";
     }
 
+    /**
+     *新規学生登録画面を表示する。
+     * 学生登録フォームに表示するための初期データとしてStudentDetailオブジェクトを生成し、
+     * 受講コース情報を1件分初期化してModelに格納する。
+     *
+     * @param model 画面（View）へデータを受け渡す
+     * @return 新規学生登録画面（registerStudent.html）のビュー名
+     */
     @GetMapping("/newStudent")
     public String newStudent(Model model) {
-        model.addAttribute("studentDetail", new StudentDetail());
+        StudentDetail studentDetail = new StudentDetail();
+        studentDetail.setCourse(Arrays.asList(new Course()));
+        // 空リストだと画面に何も表示されないため、あらかじめ1件入れておくために初期化
+        // 1行以上表示させるために、asListでリスト化させている
+        model.addAttribute("studentDetail", studentDetail);
         return "registerStudent";
-    }
-
-    /**
-     * 学生IDを指定して新しいコース登録画面を表示する
-     * 指定された学生IDをもとに空のCourseオブジェクトを作成し、画面に渡すモデルに追加する
-     * RequestParamは、HTTPリクエストのクエリパラメータを取得するためのSpringアノテーション
-     * newCourse?studentId=001の形式でアクセスする
-     *
-     * @param studentId 学生ID（コースを登録する対象の学生）
-     * @param model 画面に渡すモデル
-     * @return 受講生コースの登録画面
-     */
-    @GetMapping("/newCourse")
-    public String newCourse(@RequestParam String studentId, Model model) {
-        Course course = new Course();
-        course.setStudentId(studentId);
-        model.addAttribute("course", course);
-        return "registerCourse";
     }
 
     /**
@@ -81,7 +76,7 @@ public class StudentController {
      * 入力エラーがあれば、登録画面に戻す。
      *
      * @param studentDetail フォームから送信された学生情報を保持する
-     * @param result 入力チェックの結果を保持する
+     * @param result        入力チェックの結果を保持する
      * @return 処理後に表示する画面。正常に完了した時は、学生一覧画面へリダイレクト
      */
     @PostMapping("/registerStudent")
@@ -89,25 +84,40 @@ public class StudentController {
         if (result.hasErrors()) {
             return "registerStudent";
         }
-        service.registerStudent(studentDetail.getStudent());
+        service.registerStudent(studentDetail);
         return "redirect:/studentList";
     }
 
     /**
-     *コース登録処理を行う。@ModelAttributeにより、フォームから送信された入力内容をCourseに詰める。
-     * 入力エラーがある場合は、コース登録画面に戻る。
-     * コースの情報だけを登録する時は、StudentDetailは不要。
+     * 学生一覧画面から選択された学生の情報を取得し、学生情報更新画面を表示する。
+     * URL に含まれる学生IDをPathVariableとして受け取り、該当する学生情報および受講コース情報を検索する。
+     * 取得した情報はModelに格納し、更新画面へ引き渡す。
      *
-     * @param course フォームから送信された受講コース情報を保持する
-     * @param result 入力チェック（バリデーション）の結果を保持する
-     * @return 処理後に表示する画面。正常に完了した時は、コース一覧画面へリダイレクト
+     * @param studentId URLパスから取得した学生ID
+     * @param model 画面へデータを渡す
+     * @return 学生情報更新画面（updateStudent）
      */
-    @PostMapping("/registerCourse")
-    public String registerCourse(@ModelAttribute Course course, BindingResult result) {
+    @GetMapping("/student/{id}")
+    public String getStudent(@PathVariable("id") String studentId, Model model) {
+        StudentDetail studentDetail = service.searchStudent(studentId);
+        model.addAttribute("studentDetail", studentDetail);
+        return "updateStudent";
+    }
+
+    /**
+     *学生情報更新画面で入力された内容を受け取り、学生情報および受講コース情報を更新する。
+     * フォームの入力値はModelAttributeにより、StudentDetailへ自動的にバインドされる
+     *
+     * @param studentDetail 更新対象の学生情報および受講コース情報
+     * @param result 入力チェック結果を保持する
+     * @return 学生一覧画面へのリダイレクト、または更新画面
+     */
+    @PostMapping("/updateStudent")
+    public String updateStudent(@ModelAttribute StudentDetail studentDetail, BindingResult result) {
         if (result.hasErrors()) {
-            return "registerCourse";
+            return "updateStudent";
         }
-        service.registerCourse(course);
-        return "redirect:/courseList";
+        service.updateStudent(studentDetail);
+        return "redirect:/studentList";
     }
 }
