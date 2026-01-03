@@ -1,13 +1,10 @@
 package raisetech.StudentManagement.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import raisetech.StudentManagement.controller.converter.StudentConverter;
 import raisetech.StudentManagement.date.Course;
 import raisetech.StudentManagement.date.Student;
@@ -17,7 +14,7 @@ import raisetech.StudentManagement.service.StudentService;
 import java.util.Arrays;
 import java.util.List;
 
-@Controller
+@RestController
 public class StudentController {
 
     private StudentService service;
@@ -30,19 +27,16 @@ public class StudentController {
     }
 
     /**
-     * 学生一覧、コース一覧をserviceから取得する。
-     * さらに、その情報を統合し、画面表示用のデータに変換。studentListという名前で画面に渡す。
+     * 学生一覧およびコース一覧を取得し、それらの情報を統合して画面（またはAPIレスポンス）表示用の
+     * StudentDetail一覧に変換して返却する
      *
-     * @param model 画面に渡すモデル
-     * @return 受講生情報の一覧
+     * @return 学生情報と受講コース情報を統合したStudentDetailの一覧
      */
     @GetMapping("/studentList")
-    public String getStudentList(Model model) {
+    public List<StudentDetail> getStudentList() {
         List<Student> students = service.searchStudentList();
         List<Course> courses = service.searchCourseList();
-
-        model.addAttribute("studentList", converter.convertStudentDetails(students, courses));
-        return "studentList";
+        return converter.convertStudentDetails(students, courses);
     }
 
     @GetMapping("/courseList")
@@ -87,37 +81,16 @@ public class StudentController {
         service.registerStudent(studentDetail);
         return "redirect:/studentList";
     }
-
+    
     /**
-     * 学生一覧画面から選択された学生の情報を取得し、学生情報更新画面を表示する。
-     * URL に含まれる学生IDをPathVariableとして受け取り、該当する学生情報および受講コース情報を検索する。
-     * 取得した情報はModelに格納し、更新画面へ引き渡す。
+     * 学生情報更新画面から送信されたリクエストを受け取り、学生基本情報および受講コース情報を更新する
      *
-     * @param studentId URLパスから取得した学生ID
-     * @param model 画面へデータを渡す
-     * @return 学生情報更新画面（updateStudent）
-     */
-    @GetMapping("/student/{id}")
-    public String getStudent(@PathVariable("id") String studentId, Model model) {
-        StudentDetail studentDetail = service.searchStudent(studentId);
-        model.addAttribute("studentDetail", studentDetail);
-        return "updateStudent";
-    }
-
-    /**
-     *学生情報更新画面で入力された内容を受け取り、学生情報および受講コース情報を更新する。
-     * フォームの入力値はModelAttributeにより、StudentDetailへ自動的にバインドされる
-     *
-     * @param studentDetail 更新対象の学生情報および受講コース情報
-     * @param result 入力チェック結果を保持する
-     * @return 学生一覧画面へのリダイレクト、または更新画面
+     * @param studentDetail 更新対象となる学生情報および受講コース情報
+     * @return 更新処理の結果メッセージを含むResponseEntity
      */
     @PostMapping("/updateStudent")
-    public String updateStudent(@ModelAttribute StudentDetail studentDetail, BindingResult result) {
-        if (result.hasErrors()) {
-            return "updateStudent";
-        }
+    public ResponseEntity<String> updateStudent(@RequestBody StudentDetail studentDetail) {
         service.updateStudent(studentDetail);
-        return "redirect:/studentList";
+        return ResponseEntity.ok("更新処理が成功しました");
     }
 }
