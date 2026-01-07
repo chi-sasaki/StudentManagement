@@ -16,12 +16,12 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="course : ${courseList}">
-        <td th:text="${course.courseId}">11</td>
-        <td th:text="${course.studentId}">1</td>
-        <td th:text="${course.courseName}">Java</td>
-        <td th:text="${course.courseStartDate}">1/1</td>
-        <td th:text="${course.courseCompletionDate}">2/2</td>
+    <tr th:each="studentCourse : ${studentCourseList}">
+        <td th:text="${studentCourse.courseId}">11</td>
+        <td th:text="${studentCourse.studentId}">1</td>
+        <td th:text="${studentCourse.courseName}">Java</td>
+        <td th:text="${studentCourse.courseStartDate}">1/1</td>
+        <td th:text="${studentCourse.courseCompletionDate}">2/2</td>
     </tr>
     </tbody>
 </table>

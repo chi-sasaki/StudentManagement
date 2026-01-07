@@ -46,14 +46,14 @@
         <label for="isDeleted">キャンセル：</label>
         <input type="checkbox" id="isDeleted" th:field="*{student.deleted}"/>
     </div>
-    <div th:each="course, stat : *{course}">
+    <div th:each="studentCourse, stat : *{studentCourse}">
         <label for = "courseId" th:for="course__${stat.index}__courseId">受講コースID：</label>
         <input type="text" id="courseId" th:id="course__${stat.index}__courseId"
-               th:field="*{course[__${stat.index}__].courseId}"/>
+               th:field="*{studentCourse[__${stat.index}__].courseId}"/>
 
         <label for="courseName" th:for="course__${stat.index}__courseName">受講コース名：</label>
         <input type="text" id="courseName" th:id="course__${stat.index}__courseName"
-               th:field="*{course[__${stat.index}__].courseName}"/>
+               th:field="*{studentCourse[__${stat.index}__].courseName}"/>
     </div>
     <div>
         <button type="submit">更新</button>
