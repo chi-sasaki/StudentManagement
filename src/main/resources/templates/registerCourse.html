@@ -5,7 +5,7 @@
 </head>
 <body>
 <h1>コース登録</h1>
-<form th:action="@{/registerCourse}" th:object="${course}" method="post">
+<form th:action="@{/registerCourse}" th:object="${studentCourse}" method="post">
 
     <!-- student_idはランダム生成したものと共有するのでhiddenで実装 -->
     <input type="hidden" th:field="*{studentId}" />
