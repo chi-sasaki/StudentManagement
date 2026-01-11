@@ -17,8 +17,8 @@ import java.util.List;
 
 public class StudentDetail {
 
-@Valid
+    @Valid
     private Student student;
-@Valid
+    @Valid
     private List<StudentCourse> studentCourseList;
 }

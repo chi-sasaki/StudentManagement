@@ -4,9 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import raisetech.StudentManagement.controller.converter.StudentConverter;
-import raisetech.StudentManagement.date.StudentCourse;
 import raisetech.StudentManagement.date.Student;
+import raisetech.StudentManagement.date.StudentCourse;
 import raisetech.StudentManagement.domain.StudentDetail;
+import raisetech.StudentManagement.exceptionhandler.UserNotFoundException;
 import raisetech.StudentManagement.repository.StudentRepository;
 
 import java.time.LocalDate;
@@ -42,6 +43,11 @@ public class StudentService {
      */
     public StudentDetail searchStudent(String studentId) {
         Student student = repository.searchStudent(studentId);
+
+        if (student == null) {
+            throw new UserNotFoundException("学生が見つかりません");
+        }
+
         List<StudentCourse> studentCourse = repository.searchStudentCourse(student.getStudentId());
         return new StudentDetail(student , studentCourse);
     }
@@ -80,28 +86,21 @@ public class StudentService {
 
     /**
      * 受講生詳細の更新を行います。受講生と受講生コース情報をそれぞれ更新します。
+     * 更新処理の前に、指定された学生IDが既に存在するかを確認します。
      *
-     * @param studentDetail 受講生詳細
+     * @param studentDetail 受講生詳細情報
      */
     @Transactional
     public void updateStudent(StudentDetail studentDetail) {
+
+        String studentId = studentDetail.getStudent().getStudentId();
+        if (!repository.existsStudentId(studentId)) {
+            throw new UserNotFoundException("更新対象の学生が存在しません");
+        }
+
         repository.updateStudent(studentDetail.getStudent());
         for(StudentCourse studentCourse : studentDetail.getStudentCourseList()){
             repository.updateCourse(studentCourse);
         }
     }
 }
-    /*
-    public void registerStudent(Student student) {
-        // UUIDオブジェクト（IDの数列）をtoString()でString型に変換する
-        student.setStudentId(UUID.randomUUID().toString());
-        // データベースに学生情報を挿入
-        repository.insertStudent(student);
-    }
-
-    public void registerCourse(Course course) {
-        // UUIDオブジェクト（IDの数列）をtoString()でString型に変換する
-        course.setCourseId(UUID.randomUUID().toString());
-        repository.insertCourse(course);
-        }
-     */

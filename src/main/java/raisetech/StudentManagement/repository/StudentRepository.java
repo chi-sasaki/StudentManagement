@@ -52,4 +52,11 @@ public interface StudentRepository {
      */
     void updateCourse(StudentCourse studentCourse);
 
+    /**
+     * 指定された学生IDが既に学生テーブルに存在するかどうかを判定する
+     *
+     * @param studentId 判定対象の学生ID
+     * @return 存在する場合はtrue、存在しない場合はfalse
+     */
+    boolean existsStudentId(String studentId);
 }
