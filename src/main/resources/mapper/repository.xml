@@ -56,4 +56,11 @@
         WHERE
         course_id = #{courseId}
     </update>
+
+    <!-- 学生情報の重複確認 -->
+    <select id="existsStudentId" parameterType="string" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM students
+        WHERE student_id = #{studentId}
+    </select>
 </mapper>
